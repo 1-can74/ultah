@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Surprise Ulang Tahun 🎂</title>
+  <style>
+    :root {
+      --cream: #fff8ef;
+      --pink: #ff8e9e;
+      --orange: #ffb36b;
+      --purple: #a68cff;
+      --ink: #342d48;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      font-family: "Trebuchet MS", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 12% 18%, #ffe1d8 0 8%, transparent 28%),
+        radial-gradient(circle at 90% 80%, #ded6ff 0 9%, transparent 30%),
+        linear-gradient(135deg, #fff8ef, #fff1f4 55%, #f2efff);
+      display: grid;
+      place-items: center;
+      padding: 28px 16px;
+    }
+
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+      opacity: .7;
+      animation: float 5s ease-in-out infinite;
+    }
+
+    .sparkle:nth-child(1) { top: 10%; left: 9%; font-size: 30px; }
+    .sparkle:nth-child(2) { top: 16%; right: 12%; font-size: 24px; animation-delay: 1s; }
+    .sparkle:nth-child(3) { bottom: 12%; left: 14%; font-size: 25px; animation-delay: 2s; }
+    .sparkle:nth-child(4) { bottom: 17%; right: 10%; font-size: 32px; animation-delay: .5s; }
+
+    .card {
+      width: min(100%, 560px);
+      position: relative;
+      text-align: center;
+      padding: 38px 26px 32px;
+      border: 1px solid rgba(255,255,255,.9);
+      border-radius: 30px;
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 24px 70px rgba(90, 67, 117, .15);
+      backdrop-filter: blur(12px);
+      animation: appear .8s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      color: #7653a6;
+      background: #f0e9ff;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 18px 0 8px;
+      font-size: clamp(32px, 8vw, 52px);
+      line-height: 1.05;
+      letter-spacing: -2px;
+    }
+
+    h1 span {
+      color: #f06e88;
+      display: block;
+    }
+
+    .intro {
+      margin: 0 auto;
+      max-width: 390px;
+      color: #716b7c;
+      line-height: 1.6;
+    }
+
+    .cake-area {
+      height: 245px;
+      display: grid;
+      place-items: end center;
+      margin: 10px 0 4px;
+      position: relative;
+    }
+
+    .cake {
+      position: relative;
+      width: 220px;
+      height: 145px;
+      margin-bottom: 15px;
+      filter: drop-shadow(0 14px 12px rgba(95, 55, 76, .13));
+    }
+
+    .plate {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 270px;
+      height: 22px;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background: linear-gradient(#fff, #e8dcf4);
+      box-shadow: 0 6px 0 #d9c9e8;
+    }
+
+    .cake-bottom {
+      position: absolute;
+      bottom: 12px;
+      width: 220px;
+      height: 82px;
+      border-radius: 16px 16px 23px 23px;
+      background: linear-gradient(90deg, #ef8b77, #ffb08d 50%, #ee8875);
+      overflow: hidden;
+    }
+
+    .cake-bottom::before {
+      content: "";
+      position: absolute;
+      inset: 12px 0 auto;
+      height: 12px;
+      background: #fff0d4;
+      box-shadow: 0 32px 0 #fff0d4;
+      opacity: .95;
+    }
+
+    .cake-top {
+      position: absolute;
+      bottom: 83px;
+      left: -5px;
+      width: 230px;
+      height: 37px;
+      border-radius: 50%;
+      background: #fff0d4;
+      border-bottom: 8px solid #ffc5a2;
+      z-index: 2;
+    }
+
+    .drip {
+      position: absolute;
+      z-index: 3;
+      bottom: 65px;
+      left: 18px;
+      width: 18px;
+      height: 28px;
+      border-radius: 0 0 12px 12px;
+      background: #fff0d4;
+      box-shadow: 38px 8px 0 #fff0d4, 82px -1px 0 #fff0d4, 133px 9px 0 #fff0d4, 177px 0 0 #fff0d4;
+    }
+
+    .sprinkle {
+      position: absolute;
+      z-index: 4;
+      width: 9px;
+      height: 4px;
+      border-radius: 5px;
+      background: #a68cff;
+      transform: rotate(28deg);
+    }
+    .s1 { top: 23px; left: 38px; }
+    .s2 { top: 13px; left: 83px; background: #f06e88; transform: rotate(-25deg); }
+    .s3 { top: 25px; left: 130px; background: #7bc8b2; }
+    .s4 { top: 12px; left: 177px; background: #ffb36b; transform: rotate(-20deg); }
+
+    .candle {
+      position: absolute;
+      z-index: 5;
+      bottom: 111px;
+      left: 50%;
+      width: 14px;
+      height: 54px;
+      transform: translateX(-50%);
+      border-radius: 5px;
+      background: repeating-linear-gradient(135deg, #fff 0 7px, #a68cff 7px 13px);
+    }
+
+    .flame {
+      position: absolute;
+      width: 19px;
+      height: 27px;
+      left: 50%;
+      top: -28px;
+      transform: translateX(-50%);
+      border-radius: 50% 50% 48% 48%;
+      background: linear-gradient(#fff5a8, #ff9a42 75%);
+      box-shadow: 0 0 22px #ffae57;
+      animation: flicker .7s ease-in-out infinite alternate;
+      transform-origin: 50% 100%;
+    }
+
+    .flame.off { display: none; }
+
+    .wish {
+      min-height: 74px;
+      margin: 14px auto 20px;
+      padding: 15px 18px;
+      max-width: 430px;
+      border-radius: 18px;
+      background: #fff4f1;
+      color: #65566b;
+      line-height: 1.6;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 15px 24px;
+      color: white;
+      background: linear-gradient(100deg, #f07991, #a17ce9);
+      box-shadow: 0 10px 22px rgba(165, 111, 190, .28);
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    button:hover { transform: translateY(-3px) rotate(-1deg); box-shadow: 0 14px 25px rgba(165,111,190,.35); }
+    button:active { transform: scale(.97); }
+
+    .hint {
+      margin: 13px 0 0;
+      color: #9a92a4;
+      font-size: 12px;
+    }
+
+    .confetti {
+      position: fixed;
+      top: -20px;
+      width: 10px;
+      height: 14px;
+      z-index: 10;
+      animation: fall 3.2s linear forwards;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translate(-50%, 20px);
+      opacity: 0;
+      padding: 12px 18px;
+      color: white;
+      background: #342d48;
+      border-radius: 999px;
+      font-weight: 700;
+      transition: .3s;
+      white-space: nowrap;
+    }
+
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @keyframes flicker {
+      from { transform: translateX(-50%) rotate(-5deg) scale(.96); }
+      to { transform: translateX(-50%) rotate(5deg) scale(1.05); }
+    }
+    @keyframes float { 50% { transform: translateY(-14px) rotate(12deg); } }
+    @keyframes appear { from { opacity: 0; transform: translateY(18px) scale(.97); } to { opacity: 1; transform: none; } }
+    @keyframes fall { to { transform: translate(var(--drift), 110vh) rotate(720deg); opacity: .9; } }
+
+    @media (max-width: 420px) {
+      .card { padding: 30px 18px 26px; }
+      .cake { transform: scale(.88); transform-origin: bottom center; }
+      .cake-area { height: 220px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sparkle">✨</div>
+  <div class="sparkle">🎈</div>
+  <div class="sparkle">⭐</div>
+  <div class="sparkle">🎉</div>
+
+  <main class="card">
+    <div class="tag">🎉 Hari spesial terdeteksi 🎉</div>
+    <h1>Happy Birthday,<span id="nama">Teman Hebat!</span></h1>
+    <p class="intro">Hari ini kamu resmi naik level. Umur nambah, tapi tenang… skill terlihat dewasa bisa di-unlock kapan-kapan.</p>
+
+    <div class="cake-area" aria-label="Kue ulang tahun virtual">
+      <div class="cake">
+        <div class="plate"></div>
+        <div class="cake-bottom"></div>
+        <div class="cake-top">
+          <i class="sprinkle s1"></i><i class="sprinkle s2"></i>
+          <i class="sprinkle s3"></i><i class="sprinkle s4"></i>
+        </div>
+        <div class="drip"></div>
+        <div class="candle"><div class="flame" id="flame"></div></div>
+      </div>
+    </div>
+
+    <div class="wish" id="ucapan">Semoga semua yang kamu pengin tercapai, rezeki lancar, sehat terus, dan traktiran hari ini nggak cuma wacana 😌</div>
+
+    <button id="tiupBtn" onclick="tiupLilin()">💨 Tiup lilin!</button>
+    <p class="hint">Tarik napas dulu… jangan sampai kuenya ikut terbang.</p>
+  </main>
+
+  <div class="toast" id="toast">Lilin berhasil ditiup! Wish-nya jangan lupa ya ✨</div>
+
+  <script>
+    // Ganti isi dua teks ini sesuai kebutuhan:
+    const NAMA_TEMAN = "Mas Wira";
+    const PESAN_UCAPAN = "Semoga panjang umur sehat selalu dan dilancarkan rezekinya";
+
+    document.getElementById("nama").textContent = NAMA_TEMAN;
+    document.getElementById("ucapan").textContent = PESAN_UCAPAN;
+
+    let sudahDitiup = false;
+
+    function tiupLilin() {
+      const flame = document.getElementById("flame");
+      const button = document.getElementById("tiupBtn");
+      const toast = document.getElementById("toast");
+
+      if (!sudahDitiup) {
+        flame.classList.add("off");
+        button.textContent = "🎊 Yeay, rayakan!";
+        sudahDitiup = true;
+        toast.textContent = "Lilin berhasil ditiup! Wish-nya jangan lupa ya ✨";
+        toast.classList.add("show");
+        buatConfetti();
+        setTimeout(() => toast.classList.remove("show"), 2800);
+      } else {
+        buatConfetti();
+        toast.textContent = "Confetti tambahan karena kamu keren 🎉";
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 2200);
+      }
+    }
+
+    function buatConfetti() {
+      const warna = ["#ff8e9e", "#ffb36b", "#a68cff", "#7bc8b2", "#ffd166", "#f7f2ff"];
+
+      for (let i = 0; i < 95; i++) {
+        const potongan = document.createElement("i");
+        potongan.className = "confetti";
+        potongan.style.left = Math.random() * 100 + "vw";
+        potongan.style.background = warna[Math.floor(Math.random() * warna.length)];
+        potongan.style.borderRadius = Math.random() > .5 ? "50%" : "2px";
+        potongan.style.setProperty("--drift", (Math.random() * 220 - 110) + "px");
+        potongan.style.animationDelay = Math.random() * .8 + "s";
+        potongan.style.animationDuration = (2.5 + Math.random() * 2) + "s";
+        document.body.appendChild(potongan);
+        setTimeout(() => potongan.remove(), 5500);
+      }
+    }
+  </script>
+</body>
+</html>
