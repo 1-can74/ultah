@@ -100,7 +100,10 @@
       height: 145px;
       margin-bottom: 15px;
       filter: drop-shadow(0 14px 12px rgba(95, 55, 76, .13));
+      transition: transform .35s ease;
     }
+
+    .cake.celebrate { animation: cakeBounce .65s ease-in-out 3; }
 
     .plate {
       position: absolute;
@@ -227,6 +230,17 @@
     button:hover { transform: translateY(-3px) rotate(-1deg); box-shadow: 0 14px 25px rgba(165,111,190,.35); }
     button:active { transform: scale(.97); }
 
+    .music-button {
+      display: block;
+      margin: 12px auto 0;
+      padding: 11px 19px;
+      color: #7653a6;
+      background: #f0e9ff;
+      box-shadow: none;
+      font-size: 14px;
+    }
+    .music-button:hover { box-shadow: 0 8px 18px rgba(165,111,190,.18); }
+
     .hint {
       margin: 13px 0 0;
       color: #9a92a4;
@@ -239,6 +253,7 @@
       width: 10px;
       height: 14px;
       z-index: 10;
+      pointer-events: none;
       animation: fall 3.2s linear forwards;
     }
 
@@ -255,6 +270,7 @@
       font-weight: 700;
       transition: .3s;
       white-space: nowrap;
+      z-index: 20;
     }
 
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
@@ -266,6 +282,7 @@
     @keyframes float { 50% { transform: translateY(-14px) rotate(12deg); } }
     @keyframes appear { from { opacity: 0; transform: translateY(18px) scale(.97); } to { opacity: 1; transform: none; } }
     @keyframes fall { to { transform: translate(var(--drift), 110vh) rotate(720deg); opacity: .9; } }
+    @keyframes cakeBounce { 0%, 100% { transform: translateY(0) rotate(0); } 35% { transform: translateY(-17px) rotate(-4deg); } 70% { transform: translateY(-8px) rotate(4deg); } }
 
     @media (max-width: 420px) {
       .card { padding: 30px 18px 26px; }
@@ -285,12 +302,12 @@
   <div class="sparkle">🎉</div>
 
   <main class="card">
-    <div class="tag">🎉 Hari spesial🎉</div>
+    <div class="tag">🎉 Hari spesial 🎉</div>
     <h1>Happy Birthday,<span id="nama">Teman Hebat!</span></h1>
-    <p class="intro">Hari ini Umur kamu nambah.</p>
+    <p class="intro">Hari ini umur kamu nambah. Saatnya senyum paling lebar dan rayakan hari spesialmu! 🥳</p>
 
     <div class="cake-area" aria-label="Kue ulang tahun virtual">
-      <div class="cake">
+      <div class="cake" id="cake">
         <div class="plate"></div>
         <div class="cake-bottom"></div>
         <div class="cake-top">
@@ -305,10 +322,11 @@
     <div class="wish" id="ucapan">Semoga semua yang kamu pengin tercapai, rezeki lancar, sehat terus, dan traktiran hari ini nggak cuma wacana</div>
 
     <button id="tiupBtn" onclick="tiupLilin()">💨 Tiup lilin!</button>
-    <p class="hint">Tarik napas dulu….</p>
+    <button class="music-button" id="musicBtn" type="button" onclick="toggleLagu()" aria-pressed="false">🎵 Putar lagu ulang tahun</button>
+    <p class="hint">Tarik napas dulu… lalu nyalakan musiknya biar makin meriah! 🎶</p>
   </main>
 
-  <div class="toast" id="toast">Lilin berhasil ditiup! Wish nya jangan lupa ya ✨</div>
+  <div class="toast" id="toast" role="status" aria-live="polite">Lilin berhasil ditiup! Wish-nya jangan lupa ya ✨</div>
 
   <script>
     // Ganti isi dua teks ini sesuai kebutuhan:
@@ -319,6 +337,10 @@
     document.getElementById("ucapan").textContent = PESAN_UCAPAN;
 
     let sudahDitiup = false;
+    let audioContext;
+    let laguSedangMain = false;
+    let timerLagu;
+    let nadaAktif = [];
 
     function tiupLilin() {
       const flame = document.getElementById("flame");
@@ -329,28 +351,104 @@
         flame.classList.add("off");
         button.textContent = "🎊 Yeay, rayakan!";
         sudahDitiup = true;
-        toast.textContent = "Lilin berhasil ditiup! Wish nya jangan lupa ya ✨";
-        toast.classList.add("show");
+        toast.textContent = "Lilin berhasil ditiup! Wish-nya jangan lupa ya ✨";
+        document.getElementById("cake").classList.add("celebrate");
         buatConfetti();
-        setTimeout(() => toast.classList.remove("show"), 2800);
+        tampilkanToast(2800);
       } else {
         buatConfetti();
-        toast.textContent = "🎉";
-        toast.classList.add("show");
-        setTimeout(() => toast.classList.remove("show"), 2200);
+        toast.textContent = "🎉 Yeay, panjang umur! 🎉";
+        tampilkanToast(2200);
       }
+    }
+
+    function tampilkanToast(durasi) {
+      const toast = document.getElementById("toast");
+      toast.classList.add("show");
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(() => toast.classList.remove("show"), durasi);
+    }
+
+    // Melodi ceria original dimainkan langsung oleh browser, tanpa file/audio eksternal.
+    function toggleLagu() {
+      if (laguSedangMain) {
+        hentikanLagu();
+      } else {
+        mainkanLagu();
+      }
+    }
+
+    async function mainkanLagu() {
+      const tombol = document.getElementById("musicBtn");
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+
+      if (!AudioContextClass) {
+        document.getElementById("toast").textContent = "Browser ini belum mendukung pemutar musik 🎵";
+        tampilkanToast(2600);
+        return;
+      }
+
+      audioContext = audioContext || new AudioContextClass();
+      if (audioContext.state === "suspended") await audioContext.resume();
+
+      // Nada-nada sederhana untuk jingle ulang tahun yang ceria.
+      const melodi = [
+        [523.25, .22], [659.25, .22], [783.99, .32], [659.25, .22], [698.46, .22], [783.99, .42],
+        [523.25, .22], [659.25, .22], [783.99, .32], [880, .22], [783.99, .22], [698.46, .42],
+        [659.25, .22], [698.46, .22], [783.99, .32], [659.25, .22], [523.25, .22], [587.33, .22], [523.25, .55]
+      ];
+      const jeda = .04;
+      let waktu = audioContext.currentTime + .08;
+      laguSedangMain = true;
+      tombol.textContent = "⏹️ Hentikan lagu";
+      tombol.setAttribute("aria-pressed", "true");
+
+      melodi.forEach(([frekuensi, durasi]) => {
+        const oscillator = audioContext.createOscillator();
+        const volume = audioContext.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.value = frekuensi;
+        volume.gain.setValueAtTime(.0001, waktu);
+        volume.gain.exponentialRampToValueAtTime(.12, waktu + .025);
+        volume.gain.exponentialRampToValueAtTime(.0001, waktu + durasi);
+        oscillator.connect(volume);
+        volume.connect(audioContext.destination);
+        oscillator.start(waktu);
+        oscillator.stop(waktu + durasi + .02);
+        nadaAktif.push(oscillator);
+        waktu += durasi + jeda;
+      });
+
+      timerLagu = setTimeout(() => {
+        laguSedangMain = false;
+        nadaAktif = [];
+        tombol.textContent = "🎵 Putar lagu ulang tahun";
+        tombol.setAttribute("aria-pressed", "false");
+      }, (waktu - audioContext.currentTime) * 1000 + 100);
+    }
+
+    function hentikanLagu() {
+      clearTimeout(timerLagu);
+      nadaAktif.forEach(nada => {
+        try { nada.stop(); } catch (_) { /* Nada mungkin sudah selesai. */ }
+      });
+      nadaAktif = [];
+      laguSedangMain = false;
+      const tombol = document.getElementById("musicBtn");
+      tombol.textContent = "🎵 Putar lagu ulang tahun";
+      tombol.setAttribute("aria-pressed", "false");
     }
 
     function buatConfetti() {
       const warna = ["#ff8e9e", "#ffb36b", "#a68cff", "#7bc8b2", "#ffd166", "#f7f2ff"];
 
-      for (let i = 0; i < 95; i++) {
+      for (let i = 0; i < 120; i++) {
         const potongan = document.createElement("i");
         potongan.className = "confetti";
         potongan.style.left = Math.random() * 100 + "vw";
         potongan.style.background = warna[Math.floor(Math.random() * warna.length)];
         potongan.style.borderRadius = Math.random() > .5 ? "50%" : "2px";
-        potongan.style.setProperty("--drift", (Math.random() * 220 - 110) + "px");
+        potongan.style.setProperty("--drift", (Math.random() * 260 - 130) + "px");
         potongan.style.animationDelay = Math.random() * .8 + "s";
         potongan.style.animationDuration = (2.5 + Math.random() * 2) + "s";
         document.body.appendChild(potongan);
